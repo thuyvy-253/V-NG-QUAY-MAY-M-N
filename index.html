@@ -31,32 +31,31 @@
             z-index: 1;
         }
 
-        /* --- KHU VỰC VÒNG XOAY CHÍNH XÁC --- */
+        /* --- KHU VỰC VÒNG XOAY (ĐÃ CHỈNH KHỚP 100%) --- */
         .wheel-area {
             position: absolute;
-            /* TỌA ĐỘ VÀNG: Chỉnh để khớp khít vào khung tròn của poster */
-            top: 61.1%;  /* Vị trí tâm theo chiều dọc */
-            left: 50%;   /* Vị trí tâm theo chiều ngang */
-            width: 71.5%; /* Độ to của vòng xoay để vừa khít khung vàng */
+            top: 61.2%;   /* Tọa độ tâm dọc chuẩn */
+            left: 50%;    /* Tọa độ tâm ngang chuẩn */
+            width: 86%;   /* Độ to đã được tăng để khít khung vàng */
             transform: translate(-50%, -50%);
             z-index: 2;
         }
 
-        /* Hình ảnh vòng xoay (phần sẽ quay) */
+        /* Hình ảnh vòng xoay (phần sẽ xoay) */
         .wheel-img {
             width: 100%;
             height: auto;
-            transition: transform 5s cubic-bezier(0.1, 0, 0.1, 1);
+            transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1);
             display: block;
         }
 
-        /* Nút START/QUAY ở giữa */
+        /* Nút START ở giữa */
         .start-btn {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 33%; /* Độ to của nút QUAY */
+            width: 28%; /* Độ to nút quay hài hòa */
             cursor: pointer;
             z-index: 10;
             transition: transform 0.1s;
@@ -64,7 +63,7 @@
         
         .start-btn:active { transform: translate(-50%, -50%) scale(0.9); }
 
-        /* --- POPUP CHÚC MỪNG --- */
+        /* --- POPUP CHÚC MỪNG (MODAL) --- */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0;
@@ -81,22 +80,23 @@
             width: 80%;
             max-width: 320px;
             padding: 30px 20px;
-            border-radius: 20px;
+            border-radius: 25px;
             border: 5px solid #ffd700;
             text-align: center;
-            box-shadow: 0 0 20px #ffd700;
-            animation: popup 0.4s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            animation: popup 0.5s cubic-bezier(0.17, 0.67, 0.83, 0.67);
         }
 
         @keyframes popup { from { transform: scale(0); } to { transform: scale(1); } }
 
-        .modal-content h2 { color: #d42020; margin: 0 0 10px; font-size: 24px; }
-        .modal-content p { color: #333; font-size: 18px; margin-bottom: 25px; line-height: 1.5; }
+        .modal-content h2 { color: #d42020; margin: 0 0 10px; font-size: 26px; }
+        .modal-content p { color: #333; font-size: 18px; margin-bottom: 25px; line-height: 1.5; font-weight: bold;}
         
         .close-btn {
             background: linear-gradient(180deg, #ffcc00, #f39200);
             color: white; border: none; padding: 12px 35px; border-radius: 50px;
             font-weight: bold; cursor: pointer; font-size: 16px; text-transform: uppercase;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
 
     </style>
@@ -104,18 +104,18 @@
 <body>
 
     <div class="poster-container">
-        <!-- Ảnh Poster của bạn -->
+        <!-- Ảnh nền Poster -->
         <img src="nen-back.jpg" class="bg-img">
 
-        <!-- Khu vực vòng xoay đè lên khung của poster -->
+        <!-- Khu vực vòng xoay -->
         <div class="wheel-area">
             <img src="vong-xoay.png" id="wheel" class="wheel-img">
-            <!-- Nút QUAY của bạn -->
+            <!-- Nút quay -->
             <img src="nut-quay.png" class="start-btn" onclick="startSpin()">
         </div>
     </div>
 
-    <!-- Popup kết quả -->
+    <!-- Cửa sổ báo kết quả -->
     <div class="modal-overlay" id="modal">
         <div class="modal-content">
             <h2>XIN CHÚC MỪNG!</h2>
@@ -129,23 +129,23 @@
         let currentRotation = 0;
         
         /* 
-           THIẾT LẬP TỈ LỆ (Win Rate)
-           Thứ tự trong mảng phải khớp với vòng tròn (từ đỉnh 12h, theo chiều kim đồng hồ)
+           THIẾT LẬP TỈ LỆ VÀ QUÀ TẶNG
+           Dựa trên bảng tỉ lệ bạn đã cung cấp
         */
         const prizes = [
-            { name: "TÚI VẢI CỔNG TRỜI 👜", weight: 20 },      // 20%
-            { name: "VOUCHER MIỄN PHÍ VÉ THAM QUAN 🎫", weight: 15 }, // 15%
-            { name: "TÚI CÓI ĐÔNG GIANG 🧺", weight: 10 },    // 10%
-            { name: "STICKER CỔNG TRỜI 🌟", weight: 20 },     // 20%
-            { name: "VOUCHER GIẢM 100K 💸", weight: 15 },     // 15%
-            { name: "QUẠT CẦM TY XINH XẮN 🪭", weight: 20 }    // 20%
+            { name: "TÚI VẢI CỔNG TRỜI 👜", weight: 20 },
+            { name: "VOUCHER MIỄN PHÍ VÉ THAM QUAN 🎫", weight: 15 },
+            { name: "TÚI CÓI ĐÔNG GIANG 🧺", weight: 10 },
+            { name: "STICKER CỔNG TRỜI 🌟", weight: 20 },
+            { name: "VOUCHER GIẢM 100K 💸", weight: 15 },
+            { name: "QUẠT CẦM TAY XINH XẮN 🪭", weight: 20 }
         ];
 
         function startSpin() {
             if (isSpinning) return;
             isSpinning = true;
 
-            // 1. Thuật toán chọn quà theo tỉ lệ %
+            // 1. Tính toán tỉ lệ trúng
             let random = Math.floor(Math.random() * 100);
             let cumulativeWeight = 0;
             let prizeIndex = 0;
@@ -158,19 +158,19 @@
                 }
             }
 
-            // 2. Tính toán góc quay
-            // Một ô là 60 độ. Để trúng ô Index, ta cần quay tới góc: 360 - (index * 60)
+            // 2. Tính toán góc quay (Vòng có 6 ô, mỗi ô 60 độ)
             const segmentDeg = 60;
+            // Tính góc dừng để kim ở đỉnh (12h) chỉ đúng tâm ô đã chọn
             const targetDeg = (360 - (prizeIndex * segmentDeg)); 
             
-            // Quay ít nhất 5 vòng (1800 độ) cộng góc đích
+            // Quay ít nhất 5 vòng + bù trừ góc hiện tại
             const totalSpin = 1800 + targetDeg;
-            currentRotation += totalSpin - (currentRotation % 360) + 360; 
+            currentRotation += totalSpin - (currentRotation % 360); 
             
             const wheel = document.getElementById('wheel');
             wheel.style.transform = `rotate(${currentRotation}deg)`;
 
-            // 3. Hiển thị kết quả sau khi quay xong (5 giây)
+            // 3. Hiện Popup sau khi quay xong (5 giây)
             setTimeout(() => {
                 isSpinning = false;
                 showModal(prizes[prizeIndex].name);
@@ -178,7 +178,7 @@
         }
 
         function showModal(name) {
-            document.getElementById('prize-text').innerHTML = "Bạn đã trúng:<br><b>" + name + "</b>";
+            document.getElementById('prize-text').innerHTML = "Bạn đã may mắn nhận được:<br><span style='color:#014321;'>" + name + "</span>";
             document.getElementById('modal').style.display = 'flex';
         }
 
