@@ -3,75 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vòng Quay May Mắn - Đông Giang</title>
+    <title>Vòng Quay May Mắn - Cổng Trời Đông Giang</title>
     <style>
+        * { box-sizing: border-box; }
         body {
             margin: 0;
+            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            /* CHỖ 1: THAY ẢNH NỀN TOÀN TRANG */
-            background: url('nen-back.jpg') no-repeat center center;
-            background-size: cover;
-            overflow: hidden;
+            min-height: 100vh;
+            background-color: #004d26; /* Màu xanh lá đặc trưng */
+            font-family: sans-serif;
         }
 
-        .container {
+        /* Container chính bao trọn Poster */
+        .poster-container {
             position: relative;
-            width: 400px;
-            height: 400px;
-        }
-
-        /* Kim chỉ (Cái mũi tên phía trên) */
-        .pointer {
-            position: absolute;
-            top: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
-            width: 40px;
-        }
-
-        /* CHỖ 2: THAY ẢNH VÒNG XOAY CỦA BẠN */
-        .wheel {
             width: 100%;
-            height: 100%;
-            background: url('vong-xoay.png') no-repeat center center;
-            background-size: contain;
-            transition: transform 5s cubic-bezier(0.1, 0, 0.1, 1);
+            max-width: 500px; /* Độ rộng tối đa để đẹp trên mobile */
+            line-height: 0;
         }
 
-        /* CHỖ 3: THAY ẢNH NÚT QUAY Ở GIỮA */
-        .spin-button {
+        /* Ảnh nền Poster */
+        .bg-img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Khu vực chứa vòng quay - Căn chỉnh chính xác vị trí trên poster */
+        .wheel-area {
+            position: absolute;
+            top: 61.2%; /* Điều chỉnh thông số này để khớp với vị trí vòng tròn trên ảnh của bạn */
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 72%; /* Độ lớn của vòng quay so với chiều ngang poster */
+            z-index: 2;
+        }
+
+        .wheel-img {
+            width: 100%;
+            transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1);
+        }
+
+        /* Nút Start nằm giữa vòng quay */
+        .start-btn {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 100px; /* Chỉnh kích thước nút */
+            width: 25%; /* Độ lớn của nút Start */
             cursor: pointer;
+            z-index: 10;
+            transition: transform 0.1s;
+        }
+
+        .start-btn:active {
+            transform: translate(-50%, -50%) scale(0.9);
+        }
+
+        /* Kim chỉ (Pin vị trí màu vàng) */
+        .pointer {
+            position: absolute;
+            top: 41%; /* Điều chỉnh để kim nằm ngay đỉnh vòng quay */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 10%;
             z-index: 5;
+        }
+
+        /* Thông báo kết quả */
+        #status {
+            position: absolute;
+            bottom: 15%;
+            width: 100%;
+            text-align: center;
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.2rem;
+            line-height: 1.4;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <!-- Kim chỉ -->
-        <img src="pointer.png" class="pointer" alt="kim-chi"> 
-        
-        <!-- Vòng quay -->
-        <div class="wheel" id="wheel"></div>
-        
-        <!-- Nút quay -->
-        <img src="nut-quay.png" class="spin-button" onclick="spin()" alt="nut-quay">
+    <div class="poster-container">
+        <!-- 1. Ảnh nền poster (đã đục lỗ hoặc đè lên) -->
+        <img src="background.png" class="bg-img">
+
+        <!-- 2. Kim chỉ -->
+        <!-- Nếu trong background.png có kim rồi thì không cần dòng này -->
+        <!-- <img src="pointer.png" class="pointer"> -->
+
+        <!-- 3. Vòng quay -->
+        <div class="wheel-area">
+            <img src="wheel.png" id="wheel" class="wheel-img">
+            <!-- 4. Nút bấm quay -->
+            <img src="button.png" class="start-btn" onclick="startSpin()">
+        </div>
+
+        <div id="status"></div>
     </div>
 
     <script>
-        let rotation = 0;
-        function spin() {
-            rotation += Math.floor(Math.random() * 360) + 1800; // Quay ít nhất 5 vòng
-            document.getElementById('wheel').style.transform = `rotate(${rotation}deg)`;
+        let isSpinning = false;
+        let currentRotation = 0;
+        
+        // Danh sách phần thưởng theo thứ tự vòng tròn (từ đỉnh quay theo chiều kim đồng hồ)
+        const prizes = [
+            "Túi Vải", 
+            "Voucher Miễn Phí Vé Tham Quan", 
+            "Túi Cói", 
+            "Sticker Cổng Trời", 
+            "Voucher Giảm 100K", 
+            "Quạt Cầm Tay"
+        ];
+
+        function startSpin() {
+            if (isSpinning) return;
+            
+            isSpinning = true;
+            document.getElementById('status').innerText = "";
+            
+            // Quay ít nhất 5 vòng + góc ngẫu nhiên
+            const randomDegree = Math.floor(Math.random() * 360);
+            const totalSpin = 1800 + randomDegree; 
+            currentRotation += totalSpin;
+            
+            const wheel = document.getElementById('wheel');
+            wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+            setTimeout(() => {
+                isSpinning = false;
+                
+                // Tính toán phần thưởng (vòng quay có 6 ô => mỗi ô 60 độ)
+                const actualDegree = currentRotation % 360;
+                const prizeIndex = Math.floor(((360 - actualDegree) % 360) / 60);
+                
+                alert("Chúc mừng bạn nhận được: " + prizes[prizeIndex]);
+                document.getElementById('status').innerText = "Bạn đã trúng: " + prizes[prizeIndex];
+            }, 5200);
         }
     </script>
 </body>
