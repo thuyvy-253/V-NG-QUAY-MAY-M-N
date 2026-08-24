@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Vòng Quay May Mắn - Cổng Trời Đông Giang</title>
     <style>
-        /* PHÔNG CHỮ HỆ THỐNG: Đảm bảo không bao giờ lỗi tiếng Việt */
+        /* FONT CHUẨN: Chống lỗi phông tiếng Việt trên mọi thiết bị */
         * { 
             box-sizing: border-box; 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -21,7 +21,7 @@
             overflow: hidden;
         }
 
-        /* Container co giãn linh hoạt giúp thấy toàn bộ Poster */
+        /* Container cố định tỉ lệ Poster */
         .poster-container {
             position: relative;
             height: 100%;
@@ -42,12 +42,12 @@
             object-fit: contain;
         }
 
-        /* --- VÒNG XOAY: ĐÃ THU NHỎ (78%) VÀ CĂN CHỈNH TÂM --- */
+        /* --- VÒNG XOAY: ĐÃ CỐ ĐỊNH VỊ TRÍ VÀ XỊT XUỐNG 63.2% --- */
         .wheel-area {
             position: absolute;
-            top: 61.5%; /* Tọa độ tâm chuẩn để không đè chữ trên */
+            top: 63.2%; /* Vị trí vàng để cân với nền back */
             left: 50%;
-            width: 68%; /* Thu nhỏ lại để thấy rõ poster phía sau */
+            width: 78%; /* Size nhỏ lại để thấy chữ phía trên */
             transform: translate(-50%, -50%);
             z-index: 2;
             line-height: 0;
@@ -59,7 +59,6 @@
             transition: transform 5s cubic-bezier(0.1, 0, 0.1, 1);
         }
 
-        /* Nút START */
         .start-btn {
             position: absolute;
             top: 50%; left: 50%;
@@ -95,7 +94,7 @@
 
         @keyframes zoomIn { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
 
-        /* Nút đóng (X) */
+        /* Nút đóng X */
         .close-x {
             position: absolute;
             top: 15px; right: 20px;
@@ -147,7 +146,7 @@
         <!-- Ảnh nền Poster -->
         <img src="nen-back.jpg" class="bg-img" id="poster">
 
-        <!-- Khu vực vòng xoay đã thu nhỏ -->
+        <!-- Khu vực vòng xoay -->
         <div class="wheel-area" id="wheel-box">
             <img src="vong-xoay.png" id="wheel" class="wheel-img">
             <img src="nut-quay.png" class="start-btn" id="spin-button" onclick="startSpin()">
@@ -161,8 +160,8 @@
             <h2>CỔNG TRỜI ĐÔNG GIANG</h2>
             <p>Chúc mừng bạn đã nhận được:</p>
             <b id="prize-name"></b>
-            <!-- Nhớ thay link Zalo của bạn vào đây -->
-            <a href="https://zalo.me/1049758536530278164" target="_blank" class="zalo-btn">ZALO OA CỔNG TRỜI ĐÔNG GIANG</a>
+            <!-- THAY SỐ ĐIỆN THOẠI ZALO CỦA BẠN VÀO ĐÂY -->
+            <a href="https://zalo.me/1049758536530278164" target="_blank" class="zalo-btn">Zalo OA Cổng Trời Đông Giang</a>
         </div>
     </div>
 
@@ -170,12 +169,13 @@
         let isSpinning = false;
         let currentRotation = 0;
         
-        // Giới hạn 2 lượt quay
-        let spinCount = parseInt(localStorage.getItem('spin_dg_final_revised')) || 0;
+        // Ghi nhớ 2 lượt quay
+        let spinCount = parseInt(localStorage.getItem('spin_dg_vFinal')) || 0;
         if (spinCount >= 2) {
             document.getElementById('spin-button').classList.add('out-of-turns');
         }
 
+        // DANH SÁCH QUÀ (Khớp 100% với thứ tự hình ảnh của bạn)
         const prizes = [
             { name: "TÚI VẢI" },           
             { name: "VOUCHER MIỄN PHÍ VÉ THAM QUAN" }, 
@@ -185,12 +185,11 @@
             { name: "QUẠT" }         
         ];
 
-        // Tự động tính toán lại tỷ lệ Width theo Poster thực tế khi tải trang
+        // Hàm cố định vị trí vòng xoay theo kích thước ảnh nền thực tế
         function adjustWheel() {
             const poster = document.getElementById('poster');
             const wheelBox = document.getElementById('wheel-box');
             if (poster.complete) {
-                // Tỷ lệ 0.78 (78%) giúp vòng xoay nhỏ hơn khung vàng một chút để thấy chữ
                 wheelBox.style.width = (poster.clientWidth * 0.78) + "px";
             }
         }
@@ -200,14 +199,14 @@
         function startSpin() {
             if (isSpinning) return;
             if (spinCount >= 2) {
-                alert("Bạn đã tham gia đủ 2 lượt quay may mắn!");
+                alert("Bạn đã hết lượt quay! Mỗi thiết bị được tối đa 2 lượt.");
                 return;
             }
 
             isSpinning = true;
             let prizeIndex = Math.floor(Math.random() * prizes.length);
 
-            // Góc quay dừng tại mũi tên bên Phải (3 giờ)
+            // Tính góc quay để mũi tên (Bên Phải - 3h) chỉ đúng ô quà
             let stopDegree = 90 - (prizeIndex * 60) - 30;
             let totalSpin = (360 * 10) + stopDegree; 
             currentRotation += totalSpin - (currentRotation % 360) + (stopDegree < (currentRotation % 360) ? 360 : 0);
@@ -217,7 +216,7 @@
             setTimeout(() => {
                 isSpinning = false;
                 spinCount++;
-                localStorage.setItem('spin_dg_final_revised', spinCount);
+                localStorage.setItem('spin_dg_vFinal', spinCount);
                 if (spinCount >= 2) document.getElementById('spin-button').classList.add('out-of-turns');
                 showModal(prizes[prizeIndex].name);
             }, 5200);
