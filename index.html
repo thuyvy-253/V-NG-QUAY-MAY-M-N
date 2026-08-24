@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Vòng Quay May Mắn - Cổng Trời Đông Giang</title>
     <style>
-        /* FONT HỆ THỐNG: Chống lỗi phông tuyệt đối */
+        /* PHÔNG CHỮ CHUẨN: Chống lỗi hiển thị tiếng Việt */
         * { 
             box-sizing: border-box; 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -20,7 +20,7 @@
             overflow: hidden;
         }
 
-        /* Container giữ Poster luôn nằm gọn trong màn hình */
+        /* Container giữ Poster luôn cân đối */
         .poster-container {
             position: relative;
             height: 100%;
@@ -41,12 +41,12 @@
             object-fit: contain;
         }
 
-        /* --- VÒNG XOAY: ĐÃ VI CHỈNH ĐỂ KHỚP 100% --- */
+        /* --- VÒNG XOAY: ĐÃ ĐƯỢC NHÍCH LÊN (61.5%) ĐỂ KHỚP KHUNG --- */
         .wheel-area {
             position: absolute;
-            top: 68.8%; /* Nhích xuống thêm một xíu so với bản cũ */
+            top: 61.5%; /* Vị trí đã được kéo lên để tránh biển gỗ và khớp khung vàng */
             left: 50%;
-            width: 88.8%; /* Nở to ra để khít hàng bóng đèn LED */
+            width: 88.5%; /* Độ nở vừa khít viền LED vàng */
             transform: translate(-50%, -50%);
             z-index: 2;
             line-height: 0;
@@ -67,7 +67,7 @@
             z-index: 10;
         }
 
-        /* --- MODAL CHÚC MỪNG NỀN TRẮNG --- */
+        /* --- BẢNG THÔNG BÁO NỀN TRẮNG CHUẨN --- */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0;
@@ -83,11 +83,11 @@
             background: #ffffff;
             width: 88%;
             max-width: 360px;
-            padding: 40px 20px 30px;
-            border-radius: 25px;
+            padding: 35px 20px;
+            border-radius: 20px;
             text-align: center;
             position: relative; 
-            box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
             animation: zoomIn 0.3s ease-out;
         }
 
@@ -95,25 +95,24 @@
 
         .close-x {
             position: absolute;
-            top: 15px; right: 20px;
-            font-size: 30px; color: #ccc;
+            top: 10px; right: 15px;
+            font-size: 28px; color: #ccc;
             cursor: pointer; font-weight: bold;
-            line-height: 1;
         }
 
-        .modal-content h2 { color: #d42020; margin: 0; font-size: 24px; font-weight: 800; text-transform: uppercase; }
-        .modal-content p { color: #444; font-size: 18px; margin: 25px 0 5px; line-height: 1.4; }
-        .modal-content b { color: #000; font-size: 21px; display: block; margin-bottom: 30px; font-weight: 700; }
+        .modal-content h2 { color: #d42020; margin: 0; font-size: 22px; font-weight: 800; text-transform: uppercase; }
+        .modal-content p { color: #333; font-size: 17px; margin: 20px 0 10px; line-height: 1.4; }
+        .modal-content b { color: #000; font-size: 20px; display: block; margin-bottom: 25px; font-weight: 700; }
 
         .zalo-btn {
             display: inline-block;
-            background-color: #c1f0c1; 
+            background-color: #c2f0c2; 
             color: #004d26;
             text-decoration: none;
-            padding: 15px 30px;
-            border-radius: 12px;
+            padding: 14px 25px;
+            border-radius: 10px;
             font-weight: 700;
-            font-size: 16px;
+            font-size: 15px;
             text-transform: uppercase;
             border: 1px solid #a8e0a8;
         }
@@ -131,12 +130,14 @@
         </div>
     </div>
 
+    <!-- Hộp thông báo -->
     <div class="modal-overlay" id="modal">
         <div class="modal-content">
             <span class="close-x" onclick="closeModal()">&times;</span>
             <h2>CỔNG TRỜI ĐÔNG GIANG</h2>
             <p>Chúc mừng bạn đã nhận được:</p>
             <b id="prize-name"></b>
+            <!-- Đổi YOUR_PHONE_NUMBER thành số Zalo của bạn -->
             <a href="https://zalo.me/YOUR_PHONE_NUMBER" target="_blank" class="zalo-btn">LIÊN HỆ ZALO NHẬN QUÀ</a>
         </div>
     </div>
@@ -145,7 +146,7 @@
         let isSpinning = false;
         let currentRotation = 0;
         
-        let spinCount = parseInt(localStorage.getItem('spin_dg_perfect')) || 0;
+        let spinCount = parseInt(localStorage.getItem('spin_dg_final_v10')) || 0;
         if (spinCount >= 2) {
             document.getElementById('spin-button').classList.add('out-of-turns');
         }
@@ -163,8 +164,7 @@
             const poster = document.getElementById('poster');
             const wheelBox = document.getElementById('wheel-box');
             if (poster.complete) {
-                // Tỷ lệ 0.888 giúp vòng xoay khớp khít với hàng bóng đèn
-                wheelBox.style.width = (poster.clientWidth * 0.888) + "px";
+                wheelBox.style.width = (poster.clientWidth * 0.885) + "px";
             }
         }
         window.addEventListener('resize', adjustWheel);
@@ -173,14 +173,14 @@
         function startSpin() {
             if (isSpinning) return;
             if (spinCount >= 2) {
-                alert("Mỗi thiết bị chỉ được tối đa 2 lượt quay!");
+                alert("Bạn đã hết lượt quay!");
                 return;
             }
 
             isSpinning = true;
             let prizeIndex = Math.floor(Math.random() * prizes.length);
 
-            // Mũi tên bên phải (3 giờ = 90 độ)
+            // Tính góc dừng ở vị trí mũi tên bên phải (3 giờ)
             let stopDegree = 90 - (prizeIndex * 60) - 30;
             let totalSpin = (360 * 10) + stopDegree; 
             currentRotation += totalSpin - (currentRotation % 360) + (stopDegree < (currentRotation % 360) ? 360 : 0);
@@ -190,7 +190,7 @@
             setTimeout(() => {
                 isSpinning = false;
                 spinCount++;
-                localStorage.setItem('spin_dg_perfect', spinCount);
+                localStorage.setItem('spin_dg_final_v10', spinCount);
                 if (spinCount >= 2) document.getElementById('spin-button').classList.add('out-of-turns');
                 showModal(prizes[prizeIndex].name);
             }, 5200);
