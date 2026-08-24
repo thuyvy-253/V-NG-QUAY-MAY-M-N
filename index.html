@@ -5,23 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Vòng Quay May Mắn - Cổng Trời Đông Giang</title>
     <style>
-        /* PHÔNG CHỮ HỆ THỐNG: Sắc nét, không lỗi phông tiếng Việt */
+        /* SỬA LỖI PHÔNG: Dùng font hệ thống sắc nét nhất */
         * { 
             box-sizing: border-box; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
 
         body {
             margin: 0; padding: 0;
             display: flex; justify-content: center; align-items: center;
+            /* Sửa lỗi chiều cao trên mobile */
             height: 100vh;
-            height: 100dvh; /* Tối ưu chiều cao cho trình duyệt di động */
+            height: 100dvh; 
             background-color: #014321;
             overflow: hidden;
         }
 
-        /* Container tự co giãn để luôn thấy toàn bộ Poster */
+        /* Container tự động co giãn để LUÔN THẤY HẾT POSTER */
         .poster-container {
             position: relative;
             height: 100%;
@@ -42,12 +43,12 @@
             object-fit: contain;
         }
 
-        /* --- VÒNG XOAY: ĐÃ ĐƯỢC KÉO LÊN (61.3%) ĐỂ KHỚP TÂM TUYỆT ĐỐI --- */
+        /* --- VÒNG XOAY: Đã căn chỉnh tỉ lệ khít khung vàng --- */
         .wheel-area {
             position: absolute;
-            top: 40.3%; /* Tọa độ này giúp tâm vòng xoay khớp khít với tâm poster */
+            top: 61.3%; /* Vị trí tâm dọc chuẩn trên Mobile */
             left: 50%;
-            width: 89%; /* Độ rộng để khít hàng bóng đèn LED */
+            width: 88.5%; 
             transform: translate(-50%, -50%);
             z-index: 2;
             line-height: 0;
@@ -63,12 +64,12 @@
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 32.5%; 
+            width: 32%; 
             cursor: pointer;
             z-index: 10;
         }
 
-        /* --- BẢNG THÔNG BÁO NỀN TRẮNG CHUẨN --- */
+        /* --- BẢNG CHÚC MỪNG NỀN TRẮNG CHUẨN --- */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0;
@@ -82,56 +83,53 @@
 
         .modal-content {
             background: #ffffff;
-            width: 88%;
-            max-width: 360px;
-            padding: 40px 20px 30px;
-            border-radius: 25px;
+            width: 85%;
+            max-width: 340px;
+            padding: 35px 20px;
+            border-radius: 20px;
             text-align: center;
             position: relative; 
-            box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
             animation: zoomIn 0.3s ease-out;
         }
 
-        @keyframes zoomIn { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
+        @keyframes zoomIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
 
         .close-x {
             position: absolute;
-            top: 15px; right: 20px;
-            font-size: 30px; color: #ccc;
+            top: 10px; right: 15px;
+            font-size: 28px; color: #ccc;
             cursor: pointer; font-weight: bold;
-            line-height: 1;
         }
-        .close-x:hover { color: #d42020; }
 
         .modal-content h2 { 
             color: #d42020; 
             margin: 0; 
-            font-size: 24px; 
+            font-size: 22px; 
             font-weight: 800;
             text-transform: uppercase;
         }
 
         .modal-content p { 
-            color: #444; font-size: 18px; 
-            margin: 25px 0 5px; line-height: 1.4; 
+            color: #333; font-size: 17px; 
+            margin: 20px 0 10px; line-height: 1.4; 
         }
 
         .modal-content b {
-            color: #000; font-size: 21px;
-            display: block; margin-bottom: 30px;
+            color: #000; font-size: 20px;
+            display: block; margin-bottom: 25px;
             font-weight: 700;
         }
 
-        /* Nút Zalo xanh lá nhạt */
         .zalo-btn {
             display: inline-block;
-            background-color: #c1f0c1; 
+            background-color: #c2f0c2; /* Xanh lá nhạt chuẩn */
             color: #004d26;
             text-decoration: none;
-            padding: 15px 30px;
-            border-radius: 12px;
+            padding: 14px 25px;
+            border-radius: 10px;
             font-weight: 700;
-            font-size: 12px;
+            font-size: 15px;
             text-transform: uppercase;
             border: 1px solid #a8e0a8;
         }
@@ -152,15 +150,15 @@
         </div>
     </div>
 
-    <!-- Hộp thông báo nền trắng -->
+    <!-- Hộp thông báo -->
     <div class="modal-overlay" id="modal">
         <div class="modal-content">
             <span class="close-x" onclick="closeModal()">&times;</span>
             <h2>CỔNG TRỜI ĐÔNG GIANG</h2>
             <p>Chúc mừng bạn đã nhận được:</p>
             <b id="prize-name"></b>
-            <!-- Nhớ thay SỐ ĐIỆN THOẠI Zalo của bạn vào link dưới -->
-            <a href="https://zalo.me/1049758536530278164" target="_blank" class="zalo-btn">Zalo OA Cổng Trời Đông Giang</a>
+            <!-- Nhớ thay số điện thoại Zalo của bạn -->
+            <a href="https://zalo.me/YOUR_PHONE_NUMBER" target="_blank" class="zalo-btn">LIÊN HỆ ZALO NHẬN QUÀ</a>
         </div>
     </div>
 
@@ -168,43 +166,43 @@
         let isSpinning = false;
         let currentRotation = 0;
         
-        // Giới hạn 2 lượt quay cho mỗi thiết bị
-        let spinCount = parseInt(localStorage.getItem('spin_dg_final_v12')) || 0;
+        // Giới hạn 2 lượt quay
+        let spinCount = parseInt(localStorage.getItem('spin_dg_final')) || 0;
         if (spinCount >= 2) {
             document.getElementById('spin-button').classList.add('out-of-turns');
         }
 
         const prizes = [
-            { name: "TÚI VẢI" },           
-            { name: "VOUCHER MIỄN PHÍ VÉ THAM QUAN" }, 
-            { name: "TÚI CÓI" },           
+            { name: "TÚI VẢI " },           
+            { name: "VOUCHER MIỄN PHÍ VÉ THAM QUAN " }, 
+            { name: "TÚI CÓI " },           
             { name: "STICKER" }, 
-            { name: "VOUCHER GIẢM 100K" },            
-            { name: "QUẠT" }         
+            { name: "VOUCHER GIẢM 100K " },            
+            { name: "QUẠT " }         
         ];
 
-        // Tự động căn chỉnh độ rộng vòng quay khớp với ảnh nền
-        function adjustWheel() {
+        // Tự động căn chỉnh vòng quay theo ảnh nền thực tế
+        function adjustWheelPosition() {
             const poster = document.getElementById('poster');
             const wheelBox = document.getElementById('wheel-box');
             if (poster.complete) {
-                wheelBox.style.width = (poster.clientWidth * 0.89) + "px";
+                wheelBox.style.width = (poster.clientWidth * 0.885) + "px";
             }
         }
-        window.addEventListener('resize', adjustWheel);
-        document.getElementById('poster').addEventListener('load', adjustWheel);
+        window.addEventListener('resize', adjustWheelPosition);
+        document.getElementById('poster').addEventListener('load', adjustWheelPosition);
 
         function startSpin() {
             if (isSpinning) return;
             if (spinCount >= 2) {
-                alert("Bạn đã tham gia đủ 2 lượt quay may mắn!");
+                alert("Bạn đã tham gia đủ 2 lượt quay!");
                 return;
             }
 
             isSpinning = true;
             let prizeIndex = Math.floor(Math.random() * prizes.length);
 
-            // Tính toán góc dừng ở mũi tên bên Phải (Vị trí 3 giờ)
+            // Tính góc dừng ở mũi tên bên Phải (3 giờ)
             let stopDegree = 90 - (prizeIndex * 60) - 30;
             let totalSpin = (360 * 10) + stopDegree; 
             currentRotation += totalSpin - (currentRotation % 360) + (stopDegree < (currentRotation % 360) ? 360 : 0);
@@ -214,7 +212,7 @@
             setTimeout(() => {
                 isSpinning = false;
                 spinCount++;
-                localStorage.setItem('spin_dg_final_v12', spinCount);
+                localStorage.setItem('spin_dg_final', spinCount);
                 if (spinCount >= 2) document.getElementById('spin-button').classList.add('out-of-turns');
                 showModal(prizes[prizeIndex].name);
             }, 5200);
