@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vòng Quay May Mắn - Cổng Trời Đông Giang</title>
     <style>
-        /* GIỮ NGUYÊN PHẦN CSS CŨ CỦA BẠN */
         * { box-sizing: border-box; }
         body {
             margin: 0; padding: 0;
@@ -14,78 +13,114 @@
             font-family: 'Arial', sans-serif;
             overflow: hidden;
         }
+
+        /* Container chính của Poster */
         .poster-container {
             position: relative;
             width: 100%;
-            max-width: 500px;
+            max-width: 500px; /* Tỉ lệ chuẩn cho điện thoại */
             margin: auto;
             line-height: 0;
         }
-        .bg-img { width: 100%; height: auto; display: block; }
+
+        /* Ảnh nền Poster */
+        .bg-img {
+            width: 100%;
+            height: auto;
+            display: block;
+            z-index: 1;
+        }
+
+        /* --- KHU VỰC VÒNG XOAY CHÍNH XÁC --- */
         .wheel-area {
             position: absolute;
-            top: 57.6%; 
-            left: 50.1%;
+            /* TỌA ĐỘ VÀNG: Chỉnh để khớp khít vào khung tròn của poster */
+            top: 61.1%;  /* Vị trí tâm theo chiều dọc */
+            left: 50%;   /* Vị trí tâm theo chiều ngang */
+            width: 71.5%; /* Độ to của vòng xoay để vừa khít khung vàng */
             transform: translate(-50%, -50%);
-            width: 63.5%;
             z-index: 2;
         }
+
+        /* Hình ảnh vòng xoay (phần sẽ quay) */
         .wheel-img {
             width: 100%;
+            height: auto;
             transition: transform 5s cubic-bezier(0.1, 0, 0.1, 1);
             display: block;
         }
+
+        /* Nút START/QUAY ở giữa */
         .start-btn {
             position: absolute;
-            top: 50%; left: 50%;
+            top: 50%;
+            left: 50%;
             transform: translate(-50%, -50%);
-            width: 26%; cursor: pointer; z-index: 10;
+            width: 33%; /* Độ to của nút QUAY */
+            cursor: pointer;
+            z-index: 10;
+            transition: transform 0.1s;
         }
+        
+        .start-btn:active { transform: translate(-50%, -50%) scale(0.9); }
+
+        /* --- POPUP CHÚC MỪNG --- */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
             display: none;
             justify-content: center;
             align-items: center;
             z-index: 100;
         }
+
         .modal-content {
             background: white;
-            width: 85%;
-            max-width: 350px;
+            width: 80%;
+            max-width: 320px;
             padding: 30px 20px;
             border-radius: 20px;
-            border: 4px solid #ffd700;
+            border: 5px solid #ffd700;
             text-align: center;
-            animation: popup zoomIn 0.5s;
+            box-shadow: 0 0 20px #ffd700;
+            animation: popup 0.4s cubic-bezier(0.17, 0.67, 0.83, 0.67);
         }
-        @keyframes zoomIn { from { transform: scale(0); } to { transform: scale(1); } }
-        .modal-content h2 { color: #f39200; margin: 0 0 10px; font-size: 24px; }
-        .modal-content p { color: #333; font-size: 18px; margin-bottom: 20px; line-height: 1.4; }
+
+        @keyframes popup { from { transform: scale(0); } to { transform: scale(1); } }
+
+        .modal-content h2 { color: #d42020; margin: 0 0 10px; font-size: 24px; }
+        .modal-content p { color: #333; font-size: 18px; margin-bottom: 25px; line-height: 1.5; }
+        
         .close-btn {
-            background: linear-gradient(to bottom, #f39200, #d47a00);
-            color: white; border: none; padding: 12px 30px; border-radius: 50px;
-            font-weight: bold; cursor: pointer; font-size: 16px;
+            background: linear-gradient(180deg, #ffcc00, #f39200);
+            color: white; border: none; padding: 12px 35px; border-radius: 50px;
+            font-weight: bold; cursor: pointer; font-size: 16px; text-transform: uppercase;
         }
+
     </style>
 </head>
 <body>
 
     <div class="poster-container">
+        <!-- Ảnh Poster của bạn -->
         <img src="nen-back.jpg" class="bg-img">
+
+        <!-- Khu vực vòng xoay đè lên khung của poster -->
         <div class="wheel-area">
             <img src="vong-xoay.png" id="wheel" class="wheel-img">
+            <!-- Nút QUAY của bạn -->
             <img src="nut-quay.png" class="start-btn" onclick="startSpin()">
         </div>
     </div>
 
+    <!-- Popup kết quả -->
     <div class="modal-overlay" id="modal">
         <div class="modal-content">
-            <h2>CHÚC MỪNG!</h2>
+            <h2>XIN CHÚC MỪNG!</h2>
             <p id="prize-text"></p>
-            <button class="close-btn" onclick="closeModal()">NHẬN QUÀ NGAY</button>
+            <button class="close-btn" onclick="closeModal()">Nhận quà ngay</button>
         </div>
     </div>
 
@@ -93,22 +128,25 @@
         let isSpinning = false;
         let currentRotation = 0;
         
-        // 1. KHAI BÁO DANH SÁCH QUÀ VÀ TỈ LỆ (Khớp 100%)
+        /* 
+           THIẾT LẬP TỈ LỆ (Win Rate)
+           Thứ tự trong mảng phải khớp với vòng tròn (từ đỉnh 12h, theo chiều kim đồng hồ)
+        */
         const prizes = [
-            { name: "Túi Vải Cổng Trời 👜", weight: 20 },
-            { name: "Voucher Miễn Phí Vé Tham Quan 🎫", weight: 15 },
-            { name: "Túi Cói Thời Trang 🧺", weight: 10 },
-            { name: "Sticker Cổng Trời Đông Giang 🌟", weight: 20 },
-            { name: "Voucher Giảm 100K 💸", weight: 15 },
-            { name: "Quạt Cầm Tay Cao Cấp 🪭", weight: 20 }
+            { name: "TÚI VẢI CỔNG TRỜI 👜", weight: 20 },      // 20%
+            { name: "VOUCHER MIỄN PHÍ VÉ THAM QUAN 🎫", weight: 15 }, // 15%
+            { name: "TÚI CÓI ĐÔNG GIANG 🧺", weight: 10 },    // 10%
+            { name: "STICKER CỔNG TRỜI 🌟", weight: 20 },     // 20%
+            { name: "VOUCHER GIẢM 100K 💸", weight: 15 },     // 15%
+            { name: "QUẠT CẦM TY XINH XẮN 🪭", weight: 20 }    // 20%
         ];
 
         function startSpin() {
             if (isSpinning) return;
             isSpinning = true;
 
-            // 2. THUẬT TOÁN TÍNH TỈ LỆ TRÚNG
-            const random = Math.floor(Math.random() * 100); // Lấy số ngẫu nhiên từ 0-99
+            // 1. Thuật toán chọn quà theo tỉ lệ %
+            let random = Math.floor(Math.random() * 100);
             let cumulativeWeight = 0;
             let prizeIndex = 0;
 
@@ -120,26 +158,27 @@
                 }
             }
 
-            // 3. TÍNH TOÁN GÓC QUAY ĐỂ KIM DỪNG ĐÚNG Ô ĐÓ
-            // Mỗi ô chiếm 60 độ (360/6)
-            // Góc của ô i là từ i*60 đến (i+1)*60
-            const segmentDegree = 60;
-            const targetDegree = 360 - (prizeIndex * segmentDegree) - (segmentDegree / 2);
+            // 2. Tính toán góc quay
+            // Một ô là 60 độ. Để trúng ô Index, ta cần quay tới góc: 360 - (index * 60)
+            const segmentDeg = 60;
+            const targetDeg = (360 - (prizeIndex * segmentDeg)); 
             
-            // Quay ít nhất 5 vòng (1800 độ) cộng với góc tới ô đích
-            const totalRotation = currentRotation + 1800 + (targetDegree - (currentRotation % 360));
-            currentRotation = totalRotation;
+            // Quay ít nhất 5 vòng (1800 độ) cộng góc đích
+            const totalSpin = 1800 + targetDeg;
+            currentRotation += totalSpin - (currentRotation % 360) + 360; 
             
-            document.getElementById('wheel').style.transform = `rotate(${currentRotation}deg)`;
+            const wheel = document.getElementById('wheel');
+            wheel.style.transform = `rotate(${currentRotation}deg)`;
 
+            // 3. Hiển thị kết quả sau khi quay xong (5 giây)
             setTimeout(() => {
                 isSpinning = false;
                 showModal(prizes[prizeIndex].name);
-            }, 5200);
+            }, 5000);
         }
 
-        function showModal(prizeName) {
-            document.getElementById('prize-text').innerHTML = "Bạn đã may mắn nhận được:<br><b>" + prizeName + "</b>";
+        function showModal(name) {
+            document.getElementById('prize-text').innerHTML = "Bạn đã trúng:<br><b>" + name + "</b>";
             document.getElementById('modal').style.display = 'flex';
         }
 
