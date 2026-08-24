@@ -12,67 +12,116 @@
             min-height: 100vh; background-color: #004d26;
             font-family: sans-serif;
         }
+
         .poster-container {
             position: relative;
-            width: 100%; max-width: 500px;
+            width: 100%;
+            max-width: 500px; /* Giữ nguyên tỉ lệ poster */
             line-height: 0;
         }
-        .bg-img { width: 100%; height: auto; display: block; }
 
+        .bg-img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* --- PHẦN CHỈNH LẠI VỊ TRÍ VÒNG XOAY --- */
         .wheel-area {
             position: absolute;
-            top: 61.2%; /* Nếu chưa khớp tâm, bạn hãy chỉnh số này (ví dụ 60% hoặc 62%) */
+            /* Chỉnh top để lên/xuống (57.5% là vị trí tâm vòng tròn trên poster này) */
+            top: 57.5%; 
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 72%; /* Nếu vòng quay to/nhỏ quá, hãy chỉnh số này */
+            /* Chỉnh width để vòng xoay nhỏ lại vừa khít khung vàng (64% là chuẩn) */
+            width: 64%; 
             z-index: 2;
         }
-        .wheel-img { width: 100%; transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1); display: block; }
 
+        .wheel-img {
+            width: 100%;
+            transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1);
+            display: block;
+        }
+
+        /* Nút Start ở chính giữa */
         .start-btn {
             position: absolute;
-            top: 50%; left: 50%;
+            top: 50%;
+            left: 50%;
             transform: translate(-50%, -50%);
-            width: 25%; cursor: pointer; z-index: 10;
+            width: 25%; 
+            cursor: pointer;
+            z-index: 10;
         }
+
+        /* --- PHẦN CHỈNH LẠI CHỮ CHÚC MỪNG --- */
         #status {
-            position: absolute; bottom: 5%; width: 100%;
-            text-align: center; color: #fff; font-weight: bold;
-            text-shadow: 2px 2px 4px #000;
+            position: absolute;
+            /* Đẩy chữ lên trên một chút để không đè vào text gỗ ở dưới */
+            bottom: 18%; 
+            width: 100%;
+            text-align: center;
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-shadow: 2px 2px 8px rgba(0,0,0,1);
+            line-height: 1.4;
+            padding: 0 20px;
         }
     </style>
 </head>
 <body>
+
     <div class="poster-container">
-        <!-- ĐÚNG TÊN FILE TRÊN GITHUB CỦA BẠN -->
+        <!-- Ảnh nền -->
         <img src="nen-back.jpg" class="bg-img">
 
+        <!-- Vòng xoay đã được chỉnh vị trí và kích thước -->
         <div class="wheel-area">
             <img src="vong-xoay.png" id="wheel" class="wheel-img">
             <img src="nut-quay.png" class="start-btn" onclick="startSpin()">
         </div>
+
+        <!-- Chữ kết quả nằm trên phần thông tin dưới chân -->
         <div id="status"></div>
     </div>
 
     <script>
         let isSpinning = false;
         let currentRotation = 0;
-        const prizes = ["Túi Vải", "Voucher Miễn Phí", "Túi Cói", "Sticker", "Voucher 100K", "Quạt Cầm Tay"];
+        
+        // Cập nhật đúng các phần quà trên vòng quay của bạn
+        const prizes = [
+            "Túi Vải", 
+            "Voucher Miễn Phí Vé Tham Quan", 
+            "Túi Cói", 
+            "Sticker Cổng Trời", 
+            "Voucher Giảm 100K", 
+            "Quạt Cầm Tay"
+        ];
 
         function startSpin() {
             if (isSpinning) return;
             isSpinning = true;
-            document.getElementById('status').innerText = "Đang quay...";
+            document.getElementById('status').innerHTML = "ĐANG QUAY...";
+            
             const randomDegree = Math.floor(Math.random() * 360);
-            currentRotation += (1800 + randomDegree);
-            document.getElementById('wheel').style.transform = `rotate(${currentRotation}deg)`;
+            currentRotation += (1800 + randomDegree); 
+            
+            const wheel = document.getElementById('wheel');
+            wheel.style.transform = `rotate(${currentRotation}deg)`;
 
             setTimeout(() => {
                 isSpinning = false;
                 const actualDegree = currentRotation % 360;
+                // Tính toán phần thưởng (vòng 6 ô = 60 độ/ô)
                 const prizeIndex = Math.floor(((360 - actualDegree) % 360) / 60);
-                alert("Chúc mừng! Bạn đã trúng: " + prizes[prizeIndex]);
-                document.getElementById('status').innerText = "Kết quả: " + prizes[prizeIndex];
+                
+                const gift = prizes[prizeIndex];
+                document.getElementById('status').innerHTML = "CHÚC MỪNG BẠN!<br>Phần quà: " + gift;
+                
+                alert("Chúc mừng! Bạn đã trúng: " + gift);
             }, 5200);
         }
     </script>
