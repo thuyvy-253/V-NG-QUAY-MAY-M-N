@@ -15,7 +15,7 @@
             overflow: hidden;
         }
 
-        /* Container tự co giãn để vừa khít màn hình máy tính và mobile */
+        /* Container co giãn theo chiều cao màn hình để không bị tràn */
         .poster-container {
             position: relative;
             height: 98vh; 
@@ -33,10 +33,10 @@
             z-index: 1;
         }
 
-        /* --- VÒNG XOAY (Đã nhích xuống 62.1% theo yêu cầu) --- */
+        /* --- VÒNG XOAY (Đã nhích xuống 63.2% để cân đối hơn) --- */
         .wheel-area {
             position: absolute;
-            top: 62.1%; 
+            top: 63.2%; 
             left: 50%;
             width: 89.2%; 
             transform: translate(-50%, -50%);
@@ -59,12 +59,12 @@
             z-index: 10;
         }
 
-        /* --- BẢNG CHÚC MỪNG (MODAL) --- */
+        /* --- BẢNG CHÚC MỪNG NỀN TRẮNG (MODAL) --- */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.7);
             display: none;
             justify-content: center;
             align-items: center;
@@ -72,49 +72,69 @@
         }
 
         .modal-content {
-            background: #1a1a1a;
-            width: 85%;
-            max-width: 350px;
-            padding: 35px 20px 25px;
-            border-radius: 20px;
-            border: 2px solid #ffcc00;
+            background: #ffffff; /* Nền trắng như ảnh bạn gửi */
+            width: 88%;
+            max-width: 380px;
+            padding: 35px 20px 30px;
+            border-radius: 25px;
             text-align: center;
-            color: white;
-            position: relative; /* Để đặt dấu X */
-            box-shadow: 0 0 30px rgba(255, 204, 0, 0.3);
-            animation: popup 0.4s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+            position: relative; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            animation: fadeIn 0.4s ease;
         }
 
-        @keyframes popup { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
 
         /* NÚT ĐÓNG (X) */
         .close-x {
             position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 28px;
-            color: #999;
+            top: 12px;
+            right: 18px;
+            font-size: 26px;
+            color: #aaa;
             cursor: pointer;
             line-height: 1;
+            font-weight: bold;
         }
-        .close-x:hover { color: #fff; }
+        .close-x:hover { color: #333; }
 
-        .modal-content h2 { color: #ff4d4d; margin: 0; font-size: 24px; text-transform: uppercase; }
-        .modal-content p { font-size: 18px; margin: 20px 0; line-height: 1.5; }
+        .modal-content h2 { 
+            color: #d42020; 
+            margin: 0; 
+            font-size: 24px; 
+            font-weight: 900;
+            text-transform: uppercase;
+        }
 
-        /* NÚT ZALO XANH LÁ NHẠT */
+        .modal-content p { 
+            color: #555;
+            font-size: 18px; 
+            margin: 20px 0; 
+            line-height: 1.6; 
+        }
+
+        .modal-content b {
+            color: #333;
+            font-size: 21px;
+            display: block;
+            margin-top: 5px;
+        }
+
+        /* NÚT ZALO XANH LÁ NHẠT NHƯ HÌNH */
         .zalo-btn {
             display: inline-block;
-            background-color: #a2e0a2; 
+            background-color: #c2f0c2; 
             color: #004d26;
             text-decoration: none;
-            padding: 14px 25px;
-            border-radius: 50px;
+            padding: 15px 35px;
+            border-radius: 12px;
             font-weight: bold;
             font-size: 16px;
             margin-top: 5px;
-            box-shadow: 0 4px 15px rgba(162, 224, 162, 0.3);
+            border: 1px solid #a8e0a8;
+            transition: 0.2s;
         }
+        .zalo-btn:hover { background-color: #b0eeb0; }
 
         .out-of-turns { filter: grayscale(1); cursor: not-allowed !important; }
     </style>
@@ -129,13 +149,14 @@
         </div>
     </div>
 
-    <!-- Hộp thông báo -->
+    <!-- Hộp thông báo nền trắng -->
     <div class="modal-overlay" id="modal">
         <div class="modal-content">
             <span class="close-x" onclick="closeModal()">&times;</span>
-            <h2>XIN CHÚC MỪNG!</h2>
+            <h2>CỔNG TRỜI ĐÔNG GIANG</h2>
             <p id="prize-text"></p>
-            <a href="https://zalo.me/SỐ_ĐIỆN_THOẠI_CỦA_BẠN" target="_blank" class="zalo-btn">LIÊN HỆ ZALO NHẬN QUÀ</a>
+            <!-- Thay số điện thoại Zalo của bạn vào đây -->
+            <a href="https://zalo.me/YOUR_PHONE_NUMBER" target="_blank" class="zalo-btn">LIÊN HỆ ZALO NHẬN QUÀ</a>
         </div>
     </div>
 
@@ -143,7 +164,7 @@
         let isSpinning = false;
         let currentRotation = 0;
         
-        // Giới hạn 2 lượt quay bằng LocalStorage
+        // Giới hạn 2 lượt quay
         let spinCount = parseInt(localStorage.getItem('spin_count_donggiang')) || 0;
         if (spinCount >= 2) {
             document.getElementById('spin-button').classList.add('out-of-turns');
@@ -161,16 +182,16 @@
         function startSpin() {
             if (isSpinning) return;
             if (spinCount >= 2) {
-                alert("Bạn đã tham gia đủ 2 lượt quay!");
+                alert("Bạn đã hết lượt quay! Mỗi thiết bị chỉ được tối đa 2 lượt.");
                 return;
             }
 
             isSpinning = true;
 
-            // Tính quà tặng (Dựa trên mảng prizes 6 ô)
+            // Tính quà tặng ngẫu nhiên
             let prizeIndex = Math.floor(Math.random() * prizes.length);
 
-            // Tính toán góc quay để dừng ở bên Phải (mũi tên hướng 3 giờ)
+            // Tính góc quay dừng ở vị trí 3 giờ (Bên phải)
             let stopDegree = 90 - (prizeIndex * 60) - 30;
             let totalSpin = (360 * 10) + stopDegree; 
             currentRotation += totalSpin - (currentRotation % 360) + (stopDegree < (currentRotation % 360) ? 360 : 0);
@@ -191,7 +212,7 @@
         }
 
         function showModal(name) {
-            document.getElementById('prize-text').innerHTML = "Bạn đã may mắn nhận được:<br><b style='color:#ffcc00; font-size:20px;'>" + name + "</b><br>tại Cổng Trời Đông Giang";
+            document.getElementById('prize-text').innerHTML = "Chúc mừng bạn đã nhận được:<b>" + name + "</b>";
             document.getElementById('modal').style.display = 'flex';
         }
 
@@ -199,7 +220,6 @@
             document.getElementById('modal').style.display = 'none';
         }
 
-        // Đóng khi bấm vào vùng đen bên ngoài
         window.onclick = function(event) {
             if (event.target == document.getElementById('modal')) {
                 closeModal();
