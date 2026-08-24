@@ -5,124 +5,146 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vòng Quay May Mắn - Cổng Trời Đông Giang</title>
     <style>
+        /* GIỮ NGUYÊN PHẦN CSS CŨ CỦA BẠN */
         * { box-sizing: border-box; }
         body {
             margin: 0; padding: 0;
             display: flex; justify-content: center; align-items: center;
-            min-height: 100vh; background-color: #004d26;
-            font-family: sans-serif;
+            min-height: 100vh; background-color: #014321;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
         }
-
         .poster-container {
             position: relative;
             width: 100%;
-            max-width: 500px; /* Giữ nguyên tỉ lệ poster */
+            max-width: 500px;
+            margin: auto;
             line-height: 0;
         }
-
-        .bg-img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        /* --- PHẦN CHỈNH LẠI VỊ TRÍ VÒNG XOAY --- */
+        .bg-img { width: 100%; height: auto; display: block; }
         .wheel-area {
             position: absolute;
-            /* Chỉnh top để lên/xuống (57.5% là vị trí tâm vòng tròn trên poster này) */
-            top: 57.5%; 
-            left: 50%;
+            top: 57.6%; 
+            left: 50.1%;
             transform: translate(-50%, -50%);
-            /* Chỉnh width để vòng xoay nhỏ lại vừa khít khung vàng (64% là chuẩn) */
-            width: 64%; 
+            width: 63.5%;
             z-index: 2;
         }
-
         .wheel-img {
             width: 100%;
-            transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1);
+            transition: transform 5s cubic-bezier(0.1, 0, 0.1, 1);
             display: block;
         }
-
-        /* Nút Start ở chính giữa */
         .start-btn {
             position: absolute;
-            top: 50%;
-            left: 50%;
+            top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 25%; 
-            cursor: pointer;
-            z-index: 10;
+            width: 26%; cursor: pointer; z-index: 10;
         }
-
-        /* --- PHẦN CHỈNH LẠI CHỮ CHÚC MỪNG --- */
-        #status {
-            position: absolute;
-            /* Đẩy chữ lên trên một chút để không đè vào text gỗ ở dưới */
-            bottom: 18%; 
-            width: 100%;
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .modal-content {
+            background: white;
+            width: 85%;
+            max-width: 350px;
+            padding: 30px 20px;
+            border-radius: 20px;
+            border: 4px solid #ffd700;
             text-align: center;
-            color: #ffffff;
-            font-weight: bold;
-            font-size: 1.1rem;
-            text-shadow: 2px 2px 8px rgba(0,0,0,1);
-            line-height: 1.4;
-            padding: 0 20px;
+            animation: popup zoomIn 0.5s;
+        }
+        @keyframes zoomIn { from { transform: scale(0); } to { transform: scale(1); } }
+        .modal-content h2 { color: #f39200; margin: 0 0 10px; font-size: 24px; }
+        .modal-content p { color: #333; font-size: 18px; margin-bottom: 20px; line-height: 1.4; }
+        .close-btn {
+            background: linear-gradient(to bottom, #f39200, #d47a00);
+            color: white; border: none; padding: 12px 30px; border-radius: 50px;
+            font-weight: bold; cursor: pointer; font-size: 16px;
         }
     </style>
 </head>
 <body>
 
     <div class="poster-container">
-        <!-- Ảnh nền -->
         <img src="nen-back.jpg" class="bg-img">
-
-        <!-- Vòng xoay đã được chỉnh vị trí và kích thước -->
         <div class="wheel-area">
             <img src="vong-xoay.png" id="wheel" class="wheel-img">
             <img src="nut-quay.png" class="start-btn" onclick="startSpin()">
         </div>
+    </div>
 
-        <!-- Chữ kết quả nằm trên phần thông tin dưới chân -->
-        <div id="status"></div>
+    <div class="modal-overlay" id="modal">
+        <div class="modal-content">
+            <h2>CHÚC MỪNG!</h2>
+            <p id="prize-text"></p>
+            <button class="close-btn" onclick="closeModal()">NHẬN QUÀ NGAY</button>
+        </div>
     </div>
 
     <script>
         let isSpinning = false;
         let currentRotation = 0;
         
-        // Cập nhật đúng các phần quà trên vòng quay của bạn
+        // 1. KHAI BÁO DANH SÁCH QUÀ VÀ TỈ LỆ (Khớp 100%)
         const prizes = [
-            "Túi Vải", 
-            "Voucher Miễn Phí Vé Tham Quan", 
-            "Túi Cói", 
-            "Sticker Cổng Trời", 
-            "Voucher Giảm 100K", 
-            "Quạt Cầm Tay"
+            { name: "Túi Vải Cổng Trời 👜", weight: 20 },
+            { name: "Voucher Miễn Phí Vé Tham Quan 🎫", weight: 15 },
+            { name: "Túi Cói Thời Trang 🧺", weight: 10 },
+            { name: "Sticker Cổng Trời Đông Giang 🌟", weight: 20 },
+            { name: "Voucher Giảm 100K 💸", weight: 15 },
+            { name: "Quạt Cầm Tay Cao Cấp 🪭", weight: 20 }
         ];
 
         function startSpin() {
             if (isSpinning) return;
             isSpinning = true;
-            document.getElementById('status').innerHTML = "ĐANG QUAY...";
+
+            // 2. THUẬT TOÁN TÍNH TỈ LỆ TRÚNG
+            const random = Math.floor(Math.random() * 100); // Lấy số ngẫu nhiên từ 0-99
+            let cumulativeWeight = 0;
+            let prizeIndex = 0;
+
+            for (let i = 0; i < prizes.length; i++) {
+                cumulativeWeight += prizes[i].weight;
+                if (random < cumulativeWeight) {
+                    prizeIndex = i;
+                    break;
+                }
+            }
+
+            // 3. TÍNH TOÁN GÓC QUAY ĐỂ KIM DỪNG ĐÚNG Ô ĐÓ
+            // Mỗi ô chiếm 60 độ (360/6)
+            // Góc của ô i là từ i*60 đến (i+1)*60
+            const segmentDegree = 60;
+            const targetDegree = 360 - (prizeIndex * segmentDegree) - (segmentDegree / 2);
             
-            const randomDegree = Math.floor(Math.random() * 360);
-            currentRotation += (1800 + randomDegree); 
+            // Quay ít nhất 5 vòng (1800 độ) cộng với góc tới ô đích
+            const totalRotation = currentRotation + 1800 + (targetDegree - (currentRotation % 360));
+            currentRotation = totalRotation;
             
-            const wheel = document.getElementById('wheel');
-            wheel.style.transform = `rotate(${currentRotation}deg)`;
+            document.getElementById('wheel').style.transform = `rotate(${currentRotation}deg)`;
 
             setTimeout(() => {
                 isSpinning = false;
-                const actualDegree = currentRotation % 360;
-                // Tính toán phần thưởng (vòng 6 ô = 60 độ/ô)
-                const prizeIndex = Math.floor(((360 - actualDegree) % 360) / 60);
-                
-                const gift = prizes[prizeIndex];
-                document.getElementById('status').innerHTML = "CHÚC MỪNG BẠN!<br>Phần quà: " + gift;
-                
-                alert("Chúc mừng! Bạn đã trúng: " + gift);
+                showModal(prizes[prizeIndex].name);
             }, 5200);
+        }
+
+        function showModal(prizeName) {
+            document.getElementById('prize-text').innerHTML = "Bạn đã may mắn nhận được:<br><b>" + prizeName + "</b>";
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
         }
     </script>
 </body>
