@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vòng Quay Cổng Trời Đông Giang</title>
+    <title>Vòng Quay May Mắn - Cổng Trời Đông Giang</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -24,13 +24,12 @@
 
         .bg-img { width: 100%; height: auto; display: block; z-index: 1; }
 
-        /* --- CĂN CHỈNH VỊ TRÍ VÒNG XOAY CHUẨN --- */
+        /* --- CĂN CHỈNH VỊ TRÍ VÒNG XOAY CHUẨN XÁC --- */
         .wheel-area {
             position: absolute;
-            /* Đã nhích xuống và phóng to thêm 1 chút để khít viền LED */
-            top: 61.35%; 
+            top: 61.38%; /* Vị trí tâm dọc đã tinh chỉnh */
             left: 50%;
-            width: 88.8%; 
+            width: 89%;   /* Độ rộng đã tăng để khít viền vàng */
             transform: translate(-50%, -50%);
             z-index: 2;
         }
@@ -46,12 +45,12 @@
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 33%; 
+            width: 32%; 
             cursor: pointer;
             z-index: 10;
         }
 
-        /* --- BẢNG CHÚC MỪNG SIÊU ĐẸP (THAY CHO ALERT) --- */
+        /* --- THÔNG BÁO CHÚC MỪNG (MODAL NHƯ ẢNH 2) --- */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0;
@@ -64,29 +63,38 @@
         }
 
         .modal-content {
-            background: #1a1a1a;
+            background: #1a1a1a; /* Nền tối sang trọng */
             width: 85%;
             max-width: 350px;
             padding: 30px 20px;
             border-radius: 20px;
-            border: 3px solid #ffcc00;
+            border: 2px solid #ffcc00;
             text-align: center;
             color: white;
-            box-shadow: 0 0 30px #ffcc00;
+            box-shadow: 0 0 25px #ffcc00;
             animation: popup 0.4s ease-out;
         }
 
-        @keyframes popup { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes popup { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         
-        .modal-content h2 { color: #ff4d4d; margin: 0; font-size: 24px; text-transform: uppercase; letter-spacing: 1px; }
-        .modal-content p { font-size: 19px; margin: 20px 0; line-height: 1.5; font-weight: bold; }
+        .modal-content h2 { color: #ff4d4d; margin: 0; font-size: 24px; text-transform: uppercase; }
+        .modal-content p { font-size: 18px; margin: 20px 0; line-height: 1.5; }
         
-        .close-btn {
-            background: linear-gradient(to bottom, #ffcc00, #f39200);
-            color: black; border: none; padding: 14px 40px; border-radius: 50px;
-            font-weight: bold; cursor: pointer; font-size: 16px; text-transform: uppercase;
-            box-shadow: 0 4px 15px rgba(255, 204, 0, 0.4);
+        /* NÚT ZALO MÀU XANH LÁ NHẠT */
+        .zalo-btn {
+            display: inline-block;
+            background-color: #a2e0a2; /* Xanh lá nhạt */
+            color: #004d26; 
+            text-decoration: none;
+            padding: 14px 30px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 16px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(162, 224, 162, 0.4);
+            transition: 0.3s;
         }
+        .zalo-btn:hover { background-color: #8cd18c; transform: scale(1.05); }
     </style>
 </head>
 <body>
@@ -99,12 +107,13 @@
         </div>
     </div>
 
-    <!-- Hộp quà tặng hiện ra sau khi quay -->
+    <!-- HỘP THÔNG BÁO TÙY CHỈNH -->
     <div class="modal-overlay" id="modal">
         <div class="modal-content">
             <h2>XIN CHÚC MỪNG!</h2>
             <p id="prize-text"></p>
-            <button class="close-btn" onclick="closeModal()">NHẬN QUÀ NGAY</button>
+            <!-- THAY LINK ZALO CỦA BẠN VÀO CHỖ # DƯỚI ĐÂY -->
+            <a href="https://zalo.me/SỐ_ĐIỆN_THOẠI_CỦA_BẠN" target="_blank" class="zalo-btn" id="zalo-link">LIÊN HỆ ZALO NHẬN QUÀ</a>
         </div>
     </div>
 
@@ -112,12 +121,12 @@
         let isSpinning = false;
         let currentRotation = 0;
         
-        // DANH SÁCH QUÀ (Đúng thứ tự từ trên đỉnh xuống theo chiều kim đồng hồ)
+        // DANH SÁCH QUÀ (Khớp 100% với hình ảnh từ đỉnh 12h đi theo chiều kim đồng hồ)
         const prizes = [
-            { name: "TÚI VẢI CỔNG TRỜI 👜", weight: 20 },           // Ô 1 (Đỉnh)
+            { name: "TÚI VẢI ĐÔNG GIANG 👜", weight: 20 },           // Ô 1
             { name: "VOUCHER MIỄN PHÍ VÉ THAM QUAN 🎫", weight: 15 }, // Ô 2
             { name: "TÚI CÓI ĐÔNG GIANG 🧺", weight: 10 },           // Ô 3
-            { name: "STICKER CỔNG TRỜI 🌟", weight: 20 },            // Ô 4 (Đáy)
+            { name: "STICKER CỔNG TRỜI ĐÔNG GIANG 🌟", weight: 20 }, // Ô 4
             { name: "VOUCHER GIẢM 100K 💸", weight: 15 },            // Ô 5
             { name: "QUẠT CẦM TAY XINH XẮN 🪭", weight: 20 }         // Ô 6
         ];
@@ -126,7 +135,7 @@
             if (isSpinning) return;
             isSpinning = true;
 
-            // 1. Thuật toán tỉ lệ
+            // 1. Thuật toán tỉ lệ trúng
             let random = Math.floor(Math.random() * 100);
             let cumulativeWeight = 0;
             let prizeIndex = 0;
@@ -136,10 +145,8 @@
             }
 
             // 2. TÍNH TOÁN GÓC QUAY CHO MŨI TÊN BÊN PHẢI (Vị trí 3 giờ)
-            // Công thức chuẩn cho mũi tên hướng sang phải:
             let stopDegree = 90 - (prizeIndex * 60) - 30;
             
-            // Quay ít nhất 10 vòng cho máu lửa
             let totalSpin = (360 * 10) + stopDegree; 
             currentRotation += totalSpin - (currentRotation % 360) + (stopDegree < (currentRotation % 360) ? 360 : 0);
             
@@ -148,13 +155,13 @@
 
             setTimeout(() => {
                 isSpinning = false;
-                // Gọi bảng chúc mừng thay vì alert
+                // Hiện bảng thông báo tùy chỉnh, không hiện Alert trình duyệt
                 showModal(prizes[prizeIndex].name);
             }, 5200);
         }
 
         function showModal(name) {
-            document.getElementById('prize-text').innerHTML = "Bạn đã may mắn nhận được:<br><span style='color:#ffcc00; font-size:22px;'>" + name + "</span>";
+            document.getElementById('prize-text').innerHTML = "Bạn đã may mắn nhận được:<br><b style='color:#ffcc00; font-size:20px;'>" + name + "</b><br>tại Cổng Trời Đông Giang";
             document.getElementById('modal').style.display = 'flex';
         }
 
