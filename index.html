@@ -24,12 +24,13 @@
 
         .bg-img { width: 100%; height: auto; display: block; z-index: 1; }
 
-        /* --- CĂN CHỈNH VÒNG XOAY (UPDATE MỚI NHẤT) --- */
+        /* --- CĂN CHỈNH VỊ TRÍ VÒNG XOAY --- */
         .wheel-area {
             position: absolute;
-            top: 61.25%; /* Nhích xuống một chút cho cân tâm */
+            /* TỌA ĐỘ NÀY ĐÃ ĐƯỢC TINH CHỈNH TỪNG MILIMET */
+            top: 61.15%; 
             left: 50%;
-            width: 88%;  /* Tăng lên 88% để khít hoàn toàn viền vàng */
+            width: 88.2%; /* Tỉ lệ này giúp khít bóng đèn LED */
             transform: translate(-50%, -50%);
             z-index: 2;
         }
@@ -41,17 +42,16 @@
             display: block;
         }
 
-        /* Nút START có mũi tên hướng sang PHẢI */
         .start-btn {
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 32%; /* Tăng độ to nút bấm cho khớp */
+            width: 32%; 
             cursor: pointer;
             z-index: 10;
         }
 
-        /* --- POPUP CHÚC MỪNG --- */
+        /* --- GIAO DIỆN CHÚC MỪNG --- */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0;
@@ -64,24 +64,26 @@
         }
 
         .modal-content {
-            background: white;
-            width: 80%;
-            max-width: 320px;
+            background: #1a1a1a;
+            width: 85%;
+            max-width: 350px;
             padding: 30px 20px;
             border-radius: 20px;
-            border: 5px solid #ffd700;
+            border: 3px solid #ffcc00;
             text-align: center;
-            box-shadow: 0 0 30px #ffd700;
-            animation: popup 0.5s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+            color: white;
+            box-shadow: 0 0 20px #ffcc00;
+            animation: popup 0.5s ease-out;
         }
 
-        @keyframes popup { from { transform: scale(0); } to { transform: scale(1); } }
-        .modal-content h2 { color: #d42020; margin: 0; font-size: 22px; }
-        .modal-content p { color: #333; font-size: 18px; margin: 15px 0 25px; font-weight: bold; line-height: 1.4; }
+        @keyframes popup { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-content h2 { color: #ff4d4d; margin: 0; font-size: 24px; text-transform: uppercase; }
+        .modal-content p { font-size: 18px; margin: 20px 0; line-height: 1.5; }
+        
         .close-btn {
-            background: linear-gradient(180deg, #ffcc00, #f39200);
-            color: white; border: none; padding: 12px 30px; border-radius: 50px;
-            font-weight: bold; cursor: pointer; text-transform: uppercase;
+            background: linear-gradient(to bottom, #ffcc00, #f39200);
+            color: black; border: none; padding: 12px 30px; border-radius: 50px;
+            font-weight: bold; cursor: pointer; font-size: 16px;
         }
     </style>
 </head>
@@ -99,7 +101,7 @@
         <div class="modal-content">
             <h2>XIN CHÚC MỪNG!</h2>
             <p id="prize-text"></p>
-            <button class="close-btn" onclick="closeModal()">Nhận quà ngay</button>
+            <button class="close-btn" onclick="closeModal()">NHẬN QUÀ NGAY</button>
         </div>
     </div>
 
@@ -107,21 +109,24 @@
         let isSpinning = false;
         let currentRotation = 0;
         
-        // DANH SÁCH QUÀ THEO THỨ TỰ TRÊN HÌNH (Tính từ đỉnh 12h xuôi chiều kim đồng hồ)
+        /* 
+           DANH SÁCH QUÀ THEO ĐÚNG VỊ TRÍ TRÊN HÌNH (RẤT QUAN TRỌNG)
+           Thứ tự này tính từ ô trên cùng (12 giờ) và đi xuôi chiều kim đồng hồ:
+        */
         const prizes = [
-            { name: "Túi Vải Cổng Trời 👜", weight: 20 },      // Index 0: Đỉnh (12h)
-            { name: "Voucher Miễn Phí Vé Tham Quan 🎫", weight: 15 }, // Index 1: 2h sáng
-            { name: "Túi Cói Đông Giang 🧺", weight: 10 },    // Index 2: 4h chiều
-            { name: "Sticker Cổng Trời 🌟", weight: 20 },     // Index 3: 6h tối
-            { name: "Voucher Giảm 100K 💸", weight: 15 },     // Index 4: 8h tối
-            { name: "Quạt Cầm Tay Xinh Xắn 🪭", weight: 20 }    // Index 5: 10h đêm
+            { name: "TÚI VẢI ĐÔNG GIANG 👜", weight: 20 },           // Ô 1 (Đỉnh)
+            { name: "VOUCHER MIỄN PHÍ VÉ THAM QUAN 🎫", weight: 15 }, // Ô 2
+            { name: "TÚI CÓI ĐÔNG GIANG 🧺", weight: 10 },           // Ô 3
+            { name: "STICKER CỔNG TRỜI 🌟", weight: 20 },            // Ô 4 (Đáy)
+            { name: "VOUCHER GIẢM 100K 💸", weight: 15 },            // Ô 5
+            { name: "QUẠT CẦM TAY XINH XẮN 🪭", weight: 20 }         // Ô 6
         ];
 
         function startSpin() {
             if (isSpinning) return;
             isSpinning = true;
 
-            // 1. Chọn quà theo tỉ lệ %
+            // 1. Tính tỉ lệ trúng
             let random = Math.floor(Math.random() * 100);
             let cumulativeWeight = 0;
             let prizeIndex = 0;
@@ -130,14 +135,16 @@
                 if (random < cumulativeWeight) { prizeIndex = i; break; }
             }
 
-            // 2. TÍNH GÓC QUAY CHÍNH XÁC CHO MŨI TÊN BÊN PHẢI (90 ĐỘ)
-            // Mỗi ô 60 độ. Mũi tên ở vị trí 90 độ (bên phải).
-            // Công thức: 90 độ (vị trí mũi tên) - (số thứ tự ô * 60 độ) - 30 độ (để vào giữa ô)
+            // 2. TÍNH TOÁN GÓC QUAY ĐỂ MŨI TÊN (BÊN PHẢI - 90 độ) CHỈ ĐÚNG Ô
+            // Mỗi ô là 60 độ. Mũi tên ở vị trí 90 độ.
+            // Công thức: 90 - (vị trí ô * 60) - 30 (để vào giữa ô)
             let stopDegree = 90 - (prizeIndex * 60) - 30;
             
-            // Quay ít nhất 7 vòng để tạo cảm giác nhanh mạnh
-            let totalSpin = 2520 + stopDegree; 
-            currentRotation += totalSpin - (currentRotation % 360) + 360; 
+            // Quay ít nhất 8 vòng cho đẹp
+            let totalSpin = (360 * 8) + stopDegree; 
+            
+            // Cộng dồn vòng quay để không bị giật lùi
+            currentRotation += totalSpin - (currentRotation % 360) + (stopDegree < (currentRotation % 360) ? 360 : 0);
             
             const wheel = document.getElementById('wheel');
             wheel.style.transform = `rotate(${currentRotation}deg)`;
@@ -149,7 +156,7 @@
         }
 
         function showModal(name) {
-            document.getElementById('prize-text').innerHTML = "Chúc mừng bạn nhận được:<br><span style='color:#f39200;'>" + name + "</span>";
+            document.getElementById('prize-text').innerHTML = "Bạn đã may mắn nhận được:<br><b style='color:#ffcc00; font-size:20px;'>" + name + "</b>";
             document.getElementById('modal').style.display = 'flex';
         }
 
