@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Vòng Quay May Mắn - Cổng Trời Đông Giang</title>
     <style>
-        /* FONT CHUẨN: Chống lỗi phông tiếng Việt trên mọi thiết bị */
+        /* PHÔNG CHỮ HỆ THỐNG: Sắc nét, không lỗi tiếng Việt */
         * { 
             box-sizing: border-box; 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -21,7 +21,7 @@
             overflow: hidden;
         }
 
-        /* Container cố định tỉ lệ Poster */
+        /* Container cố định tỉ lệ Poster để các lớp ảnh khớp nhau */
         .poster-container {
             position: relative;
             height: 100%;
@@ -42,12 +42,12 @@
             object-fit: contain;
         }
 
-        /* --- VÒNG XOAY: ĐÃ CỐ ĐỊNH VỊ TRÍ VÀ XỊT XUỐNG 63.2% --- */
+        /* --- VÒNG XOAY: ĐÃ TO RA (86%) VÀ XỊT XUỐNG (68.5%) --- */
         .wheel-area {
             position: absolute;
-            top: 63.2%; /* Vị trí vàng để cân với nền back */
+            top: 68.5%; /* Tọa độ đã hạ thấp xuống ~1cm để trùng khớp khung nền */
             left: 50%;
-            width: 78%; /* Size nhỏ lại để thấy chữ phía trên */
+            width: 86%;  /* Đã nở to ra để lấp đầy khung vàng */
             transform: translate(-50%, -50%);
             z-index: 2;
             line-height: 0;
@@ -63,12 +63,12 @@
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 33%; 
+            width: 32%; 
             cursor: pointer;
             z-index: 10;
         }
 
-        /* --- BẢNG THÔNG BÁO NỀN TRẮNG CHUẨN --- */
+        /* --- BẢNG CHÚC MỪNG NỀN TRẮNG CHUẨN --- */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0;
@@ -160,8 +160,8 @@
             <h2>CỔNG TRỜI ĐÔNG GIANG</h2>
             <p>Chúc mừng bạn đã nhận được:</p>
             <b id="prize-name"></b>
-            <!-- THAY SỐ ĐIỆN THOẠI ZALO CỦA BẠN VÀO ĐÂY -->
-            <a href="https://zalo.me/1049758536530278164" target="_blank" class="zalo-btn">Zalo OA Cổng Trời Đông Giang</a>
+            <!-- Nhớ thay số điện thoại Zalo của bạn vào link dưới -->
+            <a href="https://zalo.me/YOUR_PHONE_NUMBER" target="_blank" class="zalo-btn">LIÊN HỆ ZALO NHẬN QUÀ</a>
         </div>
     </div>
 
@@ -169,13 +169,12 @@
         let isSpinning = false;
         let currentRotation = 0;
         
-        // Ghi nhớ 2 lượt quay
-        let spinCount = parseInt(localStorage.getItem('spin_dg_vFinal')) || 0;
+        // Giới hạn 2 lượt quay cho mỗi thiết bị
+        let spinCount = parseInt(localStorage.getItem('spin_dg_final_vFinal')) || 0;
         if (spinCount >= 2) {
             document.getElementById('spin-button').classList.add('out-of-turns');
         }
 
-        // DANH SÁCH QUÀ (Khớp 100% với thứ tự hình ảnh của bạn)
         const prizes = [
             { name: "TÚI VẢI" },           
             { name: "VOUCHER MIỄN PHÍ VÉ THAM QUAN" }, 
@@ -185,12 +184,13 @@
             { name: "QUẠT" }         
         ];
 
-        // Hàm cố định vị trí vòng xoay theo kích thước ảnh nền thực tế
+        // Hàm căn chỉnh Width vòng xoay theo tỉ lệ ảnh nền thực tế
         function adjustWheel() {
             const poster = document.getElementById('poster');
             const wheelBox = document.getElementById('wheel-box');
             if (poster.complete) {
-                wheelBox.style.width = (poster.clientWidth * 0.78) + "px";
+                // Tỉ lệ 0.86 giúp vòng xoay to ra vừa khít khung nền
+                wheelBox.style.width = (poster.clientWidth * 0.86) + "px";
             }
         }
         window.addEventListener('resize', adjustWheel);
@@ -206,7 +206,7 @@
             isSpinning = true;
             let prizeIndex = Math.floor(Math.random() * prizes.length);
 
-            // Tính góc quay để mũi tên (Bên Phải - 3h) chỉ đúng ô quà
+            // Góc quay dừng tại mũi tên bên Phải (3 giờ)
             let stopDegree = 90 - (prizeIndex * 60) - 30;
             let totalSpin = (360 * 10) + stopDegree; 
             currentRotation += totalSpin - (currentRotation % 360) + (stopDegree < (currentRotation % 360) ? 360 : 0);
@@ -216,7 +216,7 @@
             setTimeout(() => {
                 isSpinning = false;
                 spinCount++;
-                localStorage.setItem('spin_dg_vFinal', spinCount);
+                localStorage.setItem('spin_dg_final_vFinal', spinCount);
                 if (spinCount >= 2) document.getElementById('spin-button').classList.add('out-of-turns');
                 showModal(prizes[prizeIndex].name);
             }, 5200);
