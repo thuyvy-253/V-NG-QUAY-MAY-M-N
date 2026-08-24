@@ -24,13 +24,13 @@
 
         .bg-img { width: 100%; height: auto; display: block; z-index: 1; }
 
-        /* --- CĂN CHỈNH VỊ TRÍ VÒNG XOAY --- */
+        /* --- CĂN CHỈNH VỊ TRÍ VÒNG XOAY CHUẨN --- */
         .wheel-area {
             position: absolute;
-            /* TỌA ĐỘ NÀY ĐÃ ĐƯỢC TINH CHỈNH TỪNG MILIMET */
-            top: 61.15%; 
+            /* Đã nhích xuống và phóng to thêm 1 chút để khít viền LED */
+            top: 61.35%; 
             left: 50%;
-            width: 88.2%; /* Tỉ lệ này giúp khít bóng đèn LED */
+            width: 88.8%; 
             transform: translate(-50%, -50%);
             z-index: 2;
         }
@@ -46,12 +46,12 @@
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 32%; 
+            width: 33%; 
             cursor: pointer;
             z-index: 10;
         }
 
-        /* --- GIAO DIỆN CHÚC MỪNG --- */
+        /* --- BẢNG CHÚC MỪNG SIÊU ĐẸP (THAY CHO ALERT) --- */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0;
@@ -72,18 +72,20 @@
             border: 3px solid #ffcc00;
             text-align: center;
             color: white;
-            box-shadow: 0 0 20px #ffcc00;
-            animation: popup 0.5s ease-out;
+            box-shadow: 0 0 30px #ffcc00;
+            animation: popup 0.4s ease-out;
         }
 
-        @keyframes popup { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .modal-content h2 { color: #ff4d4d; margin: 0; font-size: 24px; text-transform: uppercase; }
-        .modal-content p { font-size: 18px; margin: 20px 0; line-height: 1.5; }
+        @keyframes popup { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .modal-content h2 { color: #ff4d4d; margin: 0; font-size: 24px; text-transform: uppercase; letter-spacing: 1px; }
+        .modal-content p { font-size: 19px; margin: 20px 0; line-height: 1.5; font-weight: bold; }
         
         .close-btn {
             background: linear-gradient(to bottom, #ffcc00, #f39200);
-            color: black; border: none; padding: 12px 30px; border-radius: 50px;
-            font-weight: bold; cursor: pointer; font-size: 16px;
+            color: black; border: none; padding: 14px 40px; border-radius: 50px;
+            font-weight: bold; cursor: pointer; font-size: 16px; text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(255, 204, 0, 0.4);
         }
     </style>
 </head>
@@ -97,6 +99,7 @@
         </div>
     </div>
 
+    <!-- Hộp quà tặng hiện ra sau khi quay -->
     <div class="modal-overlay" id="modal">
         <div class="modal-content">
             <h2>XIN CHÚC MỪNG!</h2>
@@ -109,12 +112,9 @@
         let isSpinning = false;
         let currentRotation = 0;
         
-        /* 
-           DANH SÁCH QUÀ THEO ĐÚNG VỊ TRÍ TRÊN HÌNH (RẤT QUAN TRỌNG)
-           Thứ tự này tính từ ô trên cùng (12 giờ) và đi xuôi chiều kim đồng hồ:
-        */
+        // DANH SÁCH QUÀ (Đúng thứ tự từ trên đỉnh xuống theo chiều kim đồng hồ)
         const prizes = [
-            { name: "TÚI VẢI ĐÔNG GIANG 👜", weight: 20 },           // Ô 1 (Đỉnh)
+            { name: "TÚI VẢI CỔNG TRỜI 👜", weight: 20 },           // Ô 1 (Đỉnh)
             { name: "VOUCHER MIỄN PHÍ VÉ THAM QUAN 🎫", weight: 15 }, // Ô 2
             { name: "TÚI CÓI ĐÔNG GIANG 🧺", weight: 10 },           // Ô 3
             { name: "STICKER CỔNG TRỜI 🌟", weight: 20 },            // Ô 4 (Đáy)
@@ -126,7 +126,7 @@
             if (isSpinning) return;
             isSpinning = true;
 
-            // 1. Tính tỉ lệ trúng
+            // 1. Thuật toán tỉ lệ
             let random = Math.floor(Math.random() * 100);
             let cumulativeWeight = 0;
             let prizeIndex = 0;
@@ -135,15 +135,12 @@
                 if (random < cumulativeWeight) { prizeIndex = i; break; }
             }
 
-            // 2. TÍNH TOÁN GÓC QUAY ĐỂ MŨI TÊN (BÊN PHẢI - 90 độ) CHỈ ĐÚNG Ô
-            // Mỗi ô là 60 độ. Mũi tên ở vị trí 90 độ.
-            // Công thức: 90 - (vị trí ô * 60) - 30 (để vào giữa ô)
+            // 2. TÍNH TOÁN GÓC QUAY CHO MŨI TÊN BÊN PHẢI (Vị trí 3 giờ)
+            // Công thức chuẩn cho mũi tên hướng sang phải:
             let stopDegree = 90 - (prizeIndex * 60) - 30;
             
-            // Quay ít nhất 8 vòng cho đẹp
-            let totalSpin = (360 * 8) + stopDegree; 
-            
-            // Cộng dồn vòng quay để không bị giật lùi
+            // Quay ít nhất 10 vòng cho máu lửa
+            let totalSpin = (360 * 10) + stopDegree; 
             currentRotation += totalSpin - (currentRotation % 360) + (stopDegree < (currentRotation % 360) ? 360 : 0);
             
             const wheel = document.getElementById('wheel');
@@ -151,12 +148,13 @@
 
             setTimeout(() => {
                 isSpinning = false;
+                // Gọi bảng chúc mừng thay vì alert
                 showModal(prizes[prizeIndex].name);
-            }, 5000);
+            }, 5200);
         }
 
         function showModal(name) {
-            document.getElementById('prize-text').innerHTML = "Bạn đã may mắn nhận được:<br><b style='color:#ffcc00; font-size:20px;'>" + name + "</b>";
+            document.getElementById('prize-text').innerHTML = "Bạn đã may mắn nhận được:<br><span style='color:#ffcc00; font-size:22px;'>" + name + "</span>";
             document.getElementById('modal').style.display = 'flex';
         }
 
