@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vòng Quay May Mắn - Đông Giang</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            /* CHỖ 1: THAY ẢNH NỀN TOÀN TRANG */
+            background: url('nen-back.jpg') no-repeat center center;
+            background-size: cover;
+            overflow: hidden;
+        }
+
+        .container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+        }
+
+        /* Kim chỉ (Cái mũi tên phía trên) */
+        .pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            width: 40px;
+        }
+
+        /* CHỖ 2: THAY ẢNH VÒNG XOAY CỦA BẠN */
+        .wheel {
+            width: 100%;
+            height: 100%;
+            background: url('vong-xoay.png') no-repeat center center;
+            background-size: contain;
+            transition: transform 5s cubic-bezier(0.1, 0, 0.1, 1);
+        }
+
+        /* CHỖ 3: THAY ẢNH NÚT QUAY Ở GIỮA */
+        .spin-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px; /* Chỉnh kích thước nút */
+            cursor: pointer;
+            z-index: 5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Kim chỉ -->
+        <img src="pointer.png" class="pointer" alt="kim-chi"> 
+        
+        <!-- Vòng quay -->
+        <div class="wheel" id="wheel"></div>
+        
+        <!-- Nút quay -->
+        <img src="nut-quay.png" class="spin-button" onclick="spin()" alt="nut-quay">
+    </div>
+
+    <script>
+        let rotation = 0;
+        function spin() {
+            rotation += Math.floor(Math.random() * 360) + 1800; // Quay ít nhất 5 vòng
+            document.getElementById('wheel').style.transform = `rotate(${rotation}deg)`;
+        }
+    </script>
+</body>
+</html>
